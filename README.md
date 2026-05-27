@@ -7,9 +7,6 @@ Invested is a physics game made in the Unity engine. It implements Allomancy, a 
 [![](https://img.youtube.com/vi/FfPo7ZneHHc/0.jpg)](https://www.youtube.com/watch?v=FfPo7ZneHHc)
 
 
-## Downloads
-See releases: https://github.com/austin-j-taylor/Invested/releases/latest
-
 ### Recent changes
 
 Version 1.3.1

@@ -31,6 +31,12 @@ public class PrimaMovementController : AllomanticPewter {
     // Factors
     private const float walkingFactor = .15f;
     private const float airControlFactor = .3f;
+    // Extra acceleration toward the input direction while airborne (m/s^2).
+    // Only applied while slower than rolling speed in that direction, so it steers without adding to Pushes.
+    private const float airborneSteeringAcceleration = 3f;
+    // How quickly the stronger "stopping" drag fades in after letting go of movement on the ground (drag units per second).
+    // Letting go used to apply it instantly, which felt like slamming on the brakes.
+    private const float groundedDragRampRate = 14f;
     private const float dotFactor = 10;
     // Air resistance
     [SerializeField]
@@ -82,6 +88,8 @@ public class PrimaMovementController : AllomanticPewter {
     public bool IsGrounded {
         get => groundedChecker.IsGrounded;
     }
+    // The direction gravity pulls away from (zero gravity counts as normal "up")
+    public Vector3 GravityUp => invertGravity ? Vector3.down : Vector3.up;
     public override bool IsSprinting {
         get => base.IsSprinting;
         protected set {
@@ -129,6 +137,9 @@ public class PrimaMovementController : AllomanticPewter {
         pidSpeed.SetParams(25, 0, 0, 50);
         //rb.maxAngularVelocity = maxRollingAngularSpeed;
         rb.maxAngularVelocity = Mathf.Infinity;
+        // Physics runs at a fixed 120 Hz, but the camera follows the player every rendered frame.
+        // Interpolation smooths the player's motion between physics steps so it doesn't stutter.
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
         physicsMaterial = GetComponent<Collider>().material;
     }
 
@@ -345,9 +356,11 @@ public class PrimaMovementController : AllomanticPewter {
                     rb.drag = SettingsMenu.settingsWorld.playerAirResistance * dragAirborneLinear;
                     rb.angularDrag = dragAirborneAngular;
                 } else {
-                    // If not moving and not pushing or pulling, apply stronger drag and pull player to a stop
-                    rb.drag = SettingsMenu.settingsWorld.playerAirResistance * dragGroundedLinear;
-                    rb.angularDrag = dragGroundedAngular;
+                    // If not moving and not pushing or pulling, apply stronger drag and pull player to a stop.
+                    // Ease into it instead of switching instantly.
+                    float targetDrag = SettingsMenu.settingsWorld.playerAirResistance * dragGroundedLinear;
+                    rb.drag = Mathf.MoveTowards(rb.drag, targetDrag, groundedDragRampRate * Time.fixedDeltaTime);
+                    rb.angularDrag = Mathf.MoveTowards(rb.angularDrag, dragGroundedAngular, groundedDragRampRate * Time.fixedDeltaTime);
                 }
             } else { // Not grounded
                 // "Short hopping": if you tap the jump button instead of holding it, do a short hop.
@@ -416,6 +429,16 @@ public class PrimaMovementController : AllomanticPewter {
                 Prima.PrimaFlywheelController.SpinToTorque(torque);
                 // Apply a small amount of the movement force to player for tighter controls & air movement
                 rb.AddForce((CameraController.UpsideDown ? -movement : movement) * airControlFactor * rollingAcceleration, ForceMode.Acceleration);
+                // In the air, steer a bit more, but only up to rolling speed in the input direction
+                if (!IsGrounded) {
+                    Vector3 steer = CameraController.UpsideDown ? -movement : movement;
+                    if (steer.sqrMagnitude > 0) {
+                        float speedAlongInput = Vector3.Dot(rb.velocity, steer.normalized);
+                        if (speedAlongInput < targetRollingSpeed) {
+                            rb.AddForce(steer * airborneSteeringAcceleration, ForceMode.Acceleration);
+                        }
+                    }
+                }
 
                 // Debug
                 //Debug.DrawRay(transform.position, rb.angularVelocity, Color.red);

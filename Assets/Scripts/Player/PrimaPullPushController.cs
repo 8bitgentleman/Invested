@@ -48,6 +48,14 @@ public class PrimaPullPushController : AllomanticIronSteel {
     private const float areaLerpConstant = .4f;
     private const int blueLineLayer = 10;
     private const float metalLinesLerpConstant = .30f;
+
+    /// <summary>
+    /// Converts a per-frame lerp constant (tuned at 60 fps) to one for this frame,
+    /// so ramping speed doesn't depend on framerate.
+    /// </summary>
+    private static float FrameLerp(float constantAt60fps) {
+        return 1 - Mathf.Pow(1 - constantAt60fps, Time.unscaledDeltaTime * 60);
+    }
     private const int defaultCharge = 1;
     #endregion
     public enum ControlMode { Manual, Area, Bubble, Coinshot };
@@ -1081,9 +1089,9 @@ public class PrimaPullPushController : AllomanticIronSteel {
     /// Lerps the current burn percentages to the desired target percentages.
     /// </summary>
     private void LerpToBurnPercentages() {
-        IronBurnPercentageTarget = Mathf.Lerp(IronBurnPercentageTarget, ironBurnPercentageLerp, burnPercentageLerpConstant);
-        SteelBurnPercentageTarget = Mathf.Lerp(SteelBurnPercentageTarget, steelBurnPercentageLerp, burnPercentageLerpConstant);
-        BubbleBurnPercentageTarget = Mathf.Lerp(BubbleBurnPercentageTarget, bubbleBurnPercentageLerp, burnPercentageLerpConstant);
+        IronBurnPercentageTarget = Mathf.Lerp(IronBurnPercentageTarget, ironBurnPercentageLerp, FrameLerp(burnPercentageLerpConstant));
+        SteelBurnPercentageTarget = Mathf.Lerp(SteelBurnPercentageTarget, steelBurnPercentageLerp, FrameLerp(burnPercentageLerpConstant));
+        BubbleBurnPercentageTarget = Mathf.Lerp(BubbleBurnPercentageTarget, bubbleBurnPercentageLerp, FrameLerp(burnPercentageLerpConstant));
         if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad || SettingsMenu.settingsAllomancy.pushControlStyle == 1) {
             IronPassiveBurn = 1;
             SteelPassiveBurn = 1;
@@ -1123,7 +1131,7 @@ public class PrimaPullPushController : AllomanticIronSteel {
             if (diff < 0)
                 diff = -diff;
             if (diff > .001f) {
-                bubbleRadiusLerp = Mathf.Lerp(bubbleRadiusLerp, SelectionBubbleRadius, burnPercentageLerpConstant);
+                bubbleRadiusLerp = Mathf.Lerp(bubbleRadiusLerp, SelectionBubbleRadius, FrameLerp(burnPercentageLerpConstant));
                 BubbleSetVisualSize(bubbleRadiusLerp);
             }
         }
@@ -1138,7 +1146,7 @@ public class PrimaPullPushController : AllomanticIronSteel {
         if (diff < 0)
             diff = -diff;
         if (diff > .001f) {
-            areaRadiusLerp = Mathf.Lerp(areaRadiusLerp, targetRadius, areaLerpConstant);
+            areaRadiusLerp = Mathf.Lerp(areaRadiusLerp, targetRadius, FrameLerp(areaLerpConstant));
             HUD.Crosshair.SetCircleRadius(areaRadiusLerp);
         }
     }

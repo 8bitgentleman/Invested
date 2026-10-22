@@ -164,6 +164,10 @@ public class AllomanticIronSteel : Allomancer {
     protected float Charge { get; set; } // Allomantic Charge
     public Vector3 CenterOfMass {
         get {
+            // Physics code needs the simulated position. Outside of physics steps, use the transform,
+            // which is the interpolated (rendered) position, so blue lines stay attached to the visible body.
+            if (Time.inFixedTimeStep)
+                return rb.worldCenterOfMass;
             if (cachedCenterOfMassTime != Time.unscaledTime) {
                 cachedCenterOfMass = transform.TransformPoint(rb.centerOfMass);
                 cachedCenterOfMassTime = Time.unscaledTime;

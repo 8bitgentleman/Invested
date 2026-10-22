@@ -144,6 +144,8 @@ public class SpikePit : MonoBehaviour {
 
                     // Set Player constraint
                     Player.CurrentActor.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    // The player is carried by the spike's transform, so interpolation would fight it
+                    Player.CurrentActor.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.None;
 
                     // Make Spike Target rotate towards spline velocity
                     spikeTarget.transform.position = spike.transform.position;
@@ -200,7 +202,8 @@ public class SpikePit : MonoBehaviour {
                     Player.CurrentActor.transform.SetParent(EventSystem.current.transform);
                
                     Player.CurrentActor.GetComponent<Rigidbody>().velocity = splineDragging.GetVelocity(1);
-                    Player.CurrentActor.transform.position += splineDragging.GetVelocity(1) * Time.fixedDeltaTime;
+                    Player.CurrentActor.Teleport(Player.CurrentActor.transform.position + splineDragging.GetVelocity(1) * Time.fixedDeltaTime);
+                    Player.CurrentActor.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
                     spikeRb.velocity = -splineDragging.GetVelocity(1);
                     spikeRb.transform.position -= splineDragging.GetVelocity(1) * Time.fixedDeltaTime;
 

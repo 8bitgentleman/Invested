@@ -29,6 +29,17 @@ public class Actor : MonoBehaviour {
     }
 
     /// <summary>
+    /// Instantly moves the actor. Sets the Rigidbody position too, because with interpolation on,
+    /// setting only the transform can be overwritten by the next interpolated frame.
+    /// </summary>
+    public void Teleport(Vector3 position) {
+        transform.position = position;
+        Rigidbody body = GetComponent<Rigidbody>();
+        if (body)
+            body.position = position;
+    }
+
+    /// <summary>
     /// Reset certain values AFTER the player enters a new scene
     /// </summary>
     /// <param name="scene">the scene that will be entered</param>

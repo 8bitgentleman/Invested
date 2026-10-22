@@ -83,7 +83,7 @@ public class Challenge : MonoBehaviour {
         GameManager.SetPlayState(GameManager.GamePlayState.Challenge);
         // Move player to start and set camera rotation. Also stops them and clears Push/Pull targets.
         Player.CurrentActor.RespawnClear();
-        Player.CurrentActor.transform.position = startPosition.position;
+        Player.CurrentActor.Teleport(startPosition.position);
         CameraController.Clear();
         CameraController.SetRotation(startPosition.eulerAngles);
 

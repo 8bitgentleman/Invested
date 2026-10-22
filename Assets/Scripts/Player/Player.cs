@@ -120,7 +120,7 @@ public class Player : MonoBehaviour {
             if (scene.buildIndex != SceneSelectMenu.sceneTitleScreen) {
                 GameObject spawn = GameObject.FindGameObjectWithTag("PlayerSpawn");
                 if (spawn && CameraController.ActiveCamera) { // if CameraController.Awake has been called
-                    CurrentActor.transform.position = spawn.transform.position + new Vector3(0, CurrentActor.RespawnHeightOffset, 0);
+                    CurrentActor.Teleport(spawn.transform.position + new Vector3(0, CurrentActor.RespawnHeightOffset, 0));
                     //transform.rotation = spawn.transform.rotation;
                     if (scene.buildIndex != SceneSelectMenu.sceneMain) {
                         CameraController.SetRotation(spawn.transform.eulerAngles);
@@ -154,7 +154,7 @@ public class Player : MonoBehaviour {
         CanControlMovement = false;
         CanPause = false;
         yield return new WaitForSecondsRealtime(respawnTime);
-        CurrentActor.transform.position = RespawnPoint.position + new Vector3(0, CurrentActor.RespawnHeightOffset, 0);
+        CurrentActor.Teleport(RespawnPoint.position + new Vector3(0, CurrentActor.RespawnHeightOffset, 0));
         CurrentActor.RespawnClear();
         CameraController.Clear();
         CameraController.SetRotation(RespawnPoint.eulerAngles);

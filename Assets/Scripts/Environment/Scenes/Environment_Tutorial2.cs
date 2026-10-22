@@ -49,7 +49,7 @@ public class Environment_Tutorial2 : EnvironmentCinematic {
         CameraController.ActiveCamera.GetComponent<AudioListener>().enabled = false;
         HUD.DisableHUD();
         HUD.ConversationHUDController.gameObject.SetActive(false);
-        Player.CurrentActor.transform.position = new Vector3(0, 16.26f, 230);
+        Player.CurrentActor.Teleport(new Vector3(0, 16.26f, 230));
         Prima.PlayerPewter.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX;
         Prima.PrimaInstance.ActorIronSteel.SteelReserve.enabled = true;
         Prima.PrimaInstance.ActorIronSteel.BubbleOpen(false);

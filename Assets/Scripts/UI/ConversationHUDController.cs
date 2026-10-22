@@ -384,7 +384,8 @@ public class ConversationHUDController : MonoBehaviour {
                     // Make the advance symbol appear
                     advanceText.text = KeyJump;
                     advanceSymbol.SetActive(true);
-                    while (!Keybinds.AdvanceConversationDown()) {
+                    // Don't advance from button presses made in the pause menu
+                    while (!Keybinds.AdvanceConversationDown() || GameManager.MenusController.pauseMenu.IsOpen) {
                         yield return null;
                     }
                     // wipe the text on the screen and send it to the Text Log

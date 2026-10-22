@@ -68778,7 +68778,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4398bd3f476da747ab5a3d2510e0681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseSpecialStartup: 1
+  UseSpecialStartup: 0
   startupScene: 1
 --- !u!114 &2096097692
 MonoBehaviour:

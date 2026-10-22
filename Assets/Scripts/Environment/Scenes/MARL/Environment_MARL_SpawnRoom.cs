@@ -63,10 +63,10 @@ public class Environment_MARL_SpawnRoom : Environment {
         Player.CanControlMovement = true;
 
         yield return new WaitForSeconds(2);
-        if(Player.PlayerInstance.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f) {
+        if(Player.CurrentActor.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f) {
             HUD.MessageOverlayCinematic.Next(); // move, and space to jump
 
-            while (Player.PlayerInstance.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f)
+            while (Player.CurrentActor.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f)
                 yield return null;
 
             HUD.MessageOverlayCinematic.Next();

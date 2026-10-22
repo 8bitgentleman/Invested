@@ -11,9 +11,7 @@ public class Challenge_BreakTargets : Challenge_TimeTrial {
     }
 
     public override void StartChallenge() {
-        base.StartChallenge();
-        if (failureObjects.Length > 0)
-            StartCoroutine(Countdown());
+        base.StartChallenge(); // also starts the countdown
         Resettable resettable = challengeObjects.GetComponent<Resettable>();
         resettable.Activate();
     }

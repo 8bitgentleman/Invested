@@ -126,7 +126,7 @@ public class SpikePit : MonoBehaviour {
                     spikingPlayer = true;
 
                     Player.CanControl = false;
-                    Player.PlayerInstance.GetComponent<Rigidbody>().velocity = spikeRb.velocity;
+                    Player.CurrentActor.GetComponent<Rigidbody>().velocity = spikeRb.velocity;
                 }
             }
 
@@ -143,15 +143,15 @@ public class SpikePit : MonoBehaviour {
                     spikeRb.drag = dragTracing;
 
                     // Set Player constraint
-                    Player.PlayerInstance.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    Player.CurrentActor.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
                     // Make Spike Target rotate towards spline velocity
                     spikeTarget.transform.position = spike.transform.position;
                     spike.transform.localPosition = Vector3.zero;
                     //spikeTarget.transform.rotation = spike.transform.rotation;
                     //spike.transform.localRotation = Quaternion.identity;
-                    Player.PlayerInstance.transform.SetParent(spike.transform);
-                    Player.PlayerInstance.transform.localPosition = Vector3.zero;
+                    Player.CurrentActor.transform.SetParent(spike.transform);
+                    Player.CurrentActor.transform.localPosition = Vector3.zero;
 
                     splineDragging.SetInitialPoint(transform.InverseTransformPoint(spike.transform.position), spikeRb.velocity.normalized);
 
@@ -196,11 +196,11 @@ public class SpikePit : MonoBehaviour {
                     Player.CanControl = true;
                     Prima.PrimaInstance.ActorIronSteel.StopBurning();
 
-                    Player.PlayerInstance.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                    Player.PlayerInstance.transform.SetParent(EventSystem.current.transform);
+                    Player.CurrentActor.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                    Player.CurrentActor.transform.SetParent(EventSystem.current.transform);
                
-                    Player.PlayerInstance.GetComponent<Rigidbody>().velocity = splineDragging.GetVelocity(1);
-                    Player.PlayerInstance.transform.position += splineDragging.GetVelocity(1) * Time.fixedDeltaTime;
+                    Player.CurrentActor.GetComponent<Rigidbody>().velocity = splineDragging.GetVelocity(1);
+                    Player.CurrentActor.transform.position += splineDragging.GetVelocity(1) * Time.fixedDeltaTime;
                     spikeRb.velocity = -splineDragging.GetVelocity(1);
                     spikeRb.transform.position -= splineDragging.GetVelocity(1) * Time.fixedDeltaTime;
 

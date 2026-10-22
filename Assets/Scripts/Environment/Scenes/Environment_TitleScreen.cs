@@ -11,7 +11,7 @@ public class Environment_TitleScreen : EnvironmentCinematic {
 
     void Start() {
         InitializeCinemachine();
-        vcam.LookAt = Player.PlayerInstance.transform;
+        vcam.LookAt = Player.CurrentActor.transform;
 
         GameManager.SetCameraState(GameManager.GameCameraState.Cutscene);
         HUD.DisableHUD();

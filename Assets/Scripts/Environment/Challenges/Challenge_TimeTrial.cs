@@ -40,6 +40,12 @@ public class Challenge_TimeTrial : Challenge {
         SetRingOpacity(0);
         StartCoroutine(Countdown());
     }
+    public override void FailChallenge() {
+        base.FailChallenge();
+        sources[1].Stop();
+        GameManager.AudioManager.SetBGMVolume(1);
+        HUD.MessageOverlayDescriptive.Clear();
+    }
     protected override void CompleteChallenge() {
         base.CompleteChallenge();
         sources[1].Stop();

@@ -31,7 +31,7 @@ public class Elevator : Interfaceable {
         //pc = GetComponent<ParentConstraint>();
         //ConstraintSource source = new ConstraintSource {
         //    weight = 1,
-        //    sourceTransform = Player.PlayerInstance.transform
+        //    sourceTransform = Player.CurrentActor.transform
         //};
         //pc.SetSource(0, source);
     }
@@ -50,11 +50,11 @@ public class Elevator : Interfaceable {
         CameraController.SetCinemachineCamera(vcam);
         Prima.PrimaInstance.ActorIronSteel.ExternalControl = true;
         Prima.PrimaInstance.ActorIronSteel.rb.angularVelocity = Vector3.zero;
-        offset = transform.position - Player.PlayerInstance.transform.position;
+        offset = transform.position - Player.CurrentActor.transform.position;
         anim.SetTrigger("flickerOn");
 
-        //Vector3 positionOffset = Player.PlayerInstance.transform.InverseTransformPoint(transform.position);
-        //Quaternion rotationOffset = Quaternion.Inverse(Player.PlayerInstance.transform.rotation) * transform.rotation;
+        //Vector3 positionOffset = Player.CurrentActor.transform.InverseTransformPoint(transform.position);
+        //Quaternion rotationOffset = Quaternion.Inverse(Player.CurrentActor.transform.rotation) * transform.rotation;
         //pc.SetTranslationOffset(0, positionOffset);
         //pc.SetRotationOffset(0, rotationOffset.eulerAngles);
 
@@ -110,7 +110,7 @@ public class Elevator : Interfaceable {
     private void LateUpdate() {
         if(Interfaced) {
             Vector3 temp = transform.position;
-            temp.y = Player.PlayerInstance.transform.position.y + offset.y;
+            temp.y = Player.CurrentActor.transform.position.y + offset.y;
             transform.position = temp;
             rb.velocity = Prima.PrimaInstance.ActorIronSteel.rb.velocity;
         }

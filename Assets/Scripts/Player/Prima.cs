@@ -70,7 +70,9 @@ public class Prima : Actor {
 
     #region updates
     void Update() {
-        if (Player.CanControl) {
+        // Ignore coin input while a menu or the Control Wheel is using the same buttons
+        bool menuOpen = GameManager.MenusController.pauseMenu.IsOpen || HUD.ControlWheelController.IsOpenOrJustClosed;
+        if (Player.CanControl && !menuOpen) {
             // Coin management
             if (Player.CanThrowCoins) {
                 // If releasing the "throw coin" button, remove all vacuous coin targets
@@ -84,7 +86,7 @@ public class Prima : Actor {
                         if (Keybinds.WithdrawCoinDown() || Keybinds.TossCoinDown())
                             firing = true;
                         if (ActorIronSteel.Mode == PrimaPullPushController.ControlMode.Coinshot) {
-                            if (!ActorIronSteel.HasPullTarget) {
+                            if (!ActorIronSteel.HasPullTarget && !ActorIronSteel.IgnoringPullUntilReleased) {
                                 if (Keybinds.PullDown() || (CoinThrowingMode == CoinMode.Full && Keybinds.IronPulling())) {
                                     firing = true;
                                 }
@@ -120,6 +122,17 @@ public class Prima : Actor {
                         coinCooldownTimer += Time.deltaTime * (Player.PlayerZinc.InZincTime ? 2 : 1); // throw coins 
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// During challenges, check for The Floor Is Lava
+    /// </summary>
+    private void OnCollisionEnter(Collision collision) {
+        if (GameManager.PlayState == GameManager.GamePlayState.Challenge) {
+            if (collision.transform.CompareTag("ChallengeFailure")) {
+                ChallengesManager.FailCurrentChallenge();
             }
         }
     }

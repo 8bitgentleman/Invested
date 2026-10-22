@@ -12,7 +12,7 @@ public class ParticleSystemFollowingPlayer : MonoBehaviour {
     private float startY;
 
     private void Awake() {
-        followTarget = Player.PlayerInstance.transform;
+        followTarget = Player.CurrentActor.transform;
     }
 
     private void Start() {

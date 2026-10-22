@@ -113,7 +113,7 @@ public class HarmonyTarget : MonoBehaviour {
         anim.SetTrigger("PlayerHasEntered");
 
         //Prima.PrimaInstance.ActorIronSteel.StopBurning();
-        Player.PlayerInstance.GetComponent<Rigidbody>().useGravity = false;
+        Player.CurrentActor.GetComponent<Rigidbody>().useGravity = false;
         CameraController.SetCinemachineCamera(vcam);
         if (!Unlocked)
             HUD.EnableHUD(true); // If the player isn't finished yet, keep the HUD visible to display the "Spikes needed" message
@@ -140,7 +140,7 @@ public class HarmonyTarget : MonoBehaviour {
         controllingPlayer = false;
         Player.CanControl = true;
         HUD.EnableHUD();
-        Player.PlayerInstance.GetComponent<Rigidbody>().useGravity = SettingsMenu.settingsWorld.playerGravity == 1;
+        Player.CurrentActor.GetComponent<Rigidbody>().useGravity = SettingsMenu.settingsWorld.playerGravity == 1;
         CameraController.DisableCinemachineCamera(vcam);
         StartCoroutine(EnableColliderAfterDelay());
     }
@@ -162,7 +162,7 @@ public class HarmonyTarget : MonoBehaviour {
         anim.SetTrigger("PlayerExits");
         Player.CanControl = true;
         HUD.EnableHUD();
-        Player.PlayerInstance.GetComponent<Rigidbody>().useGravity = SettingsMenu.settingsWorld.playerGravity == 1;
+        Player.CurrentActor.GetComponent<Rigidbody>().useGravity = SettingsMenu.settingsWorld.playerGravity == 1;
         CameraController.DisableCinemachineCamera(vcam);
 
         Destroy(harmonySphere.gameObject);

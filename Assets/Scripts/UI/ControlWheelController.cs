@@ -58,11 +58,18 @@ public class ControlWheelController : MonoBehaviour {
                 } else {
                     // Close the control wheel and confirm that selection
                     ConfirmSelection();
+                    closedFrame = Time.frameCount;
                 }
                 isOpen = value;
             }
         }
     }
+    private int closedFrame = -1;
+    /// <summary>
+    /// True while the wheel is open, and for the rest of the frame it closed on.
+    /// Lets later scripts ignore the click that confirmed the wheel.
+    /// </summary>
+    public bool IsOpenOrJustClosed => isOpen || closedFrame == Time.frameCount;
     public bool IsLocked() => lockedState == LockedState.LockedFully;
 
     void Awake() {

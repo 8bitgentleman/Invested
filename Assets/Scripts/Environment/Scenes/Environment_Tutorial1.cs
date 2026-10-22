@@ -33,7 +33,7 @@ public class Environment_Tutorial1 : EnvironmentCinematic {
             // Set camera target position to be same as where we left of in tutorial (just a sine function of time)
             vcam.transform.position = new Vector3(Mathf.Cos(Time.unscaledTime * Environment_TitleScreen.speedVert) * Environment_TitleScreen.speedAmp, (1 + Mathf.Sin(Time.unscaledTime * Environment_TitleScreen.speedVert)) * Environment_TitleScreen.speedAmp, Mathf.Sin(Time.unscaledTime * Environment_TitleScreen.speedVert) * Environment_TitleScreen.speedAmp);
             // Make camera look at Player
-            vcam.LookAt = Player.PlayerInstance.transform;
+            vcam.LookAt = Player.CurrentActor.transform;
             // Handle music
             StartCoroutine(Play_music());
 
@@ -73,7 +73,7 @@ public class Environment_Tutorial1 : EnvironmentCinematic {
 
     private IEnumerator Procedure() {
         // Skip the intro cutscene if the player is starting elsewhere in the level
-        if ((Player.PlayerInstance.transform.position - vcam.transform.position).magnitude < 30) {
+        if ((Player.CurrentActor.transform.position - vcam.transform.position).magnitude < 30) {
             yield return null;
             vcam.enabled = false;
             yield return new WaitForSeconds(2);
@@ -97,10 +97,10 @@ public class Environment_Tutorial1 : EnvironmentCinematic {
         }
 
         // Move
-        if (Player.PlayerInstance.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f) {
+        if (Player.CurrentActor.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f) {
             HUD.MessageOverlayCinematic.FadeIn(HowToMove + " to move.");
 
-            while (Player.PlayerInstance.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f)
+            while (Player.CurrentActor.GetComponent<Rigidbody>().velocity.sqrMagnitude < .25f)
                 yield return null;
 
             HUD.MessageOverlayCinematic.FadeOut();

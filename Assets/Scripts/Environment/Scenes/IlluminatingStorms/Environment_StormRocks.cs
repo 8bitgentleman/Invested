@@ -24,7 +24,7 @@ public class Environment_StormRocks : MonoBehaviour {
         //randomly spawn boulders
         Transform spawn = transform.Find("Spawn");
         for(int i = 0; i < spawnCount; i++) {
-            Transform boulder = Instantiate(prefabBoulders[Random.Range(0, prefabBoulders.Length - 1)], transform).transform;
+            Transform boulder = Instantiate(prefabBoulders[Random.Range(0, prefabBoulders.Length)], transform).transform;
             Vector3 pos = new Vector3 {
                 x = spawn.position.x + spawn.localScale.x * (Random.value - .5f),
                 y = spawn.position.y + spawn.localScale.y * (Random.value - .5f),

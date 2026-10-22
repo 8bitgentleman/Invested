@@ -67,7 +67,8 @@ public class Player : MonoBehaviour {
     }
 
     private void Start() {
-        SetActor(Kog.KogInstance);
+        // Kog is still a work in progress, so the player always starts as Prima.
+        SetActor(Prima.PrimaInstance);
     }
 
     #region updates
@@ -126,20 +127,8 @@ public class Player : MonoBehaviour {
                         CameraController.Clear();
                     }
                 }
-                RespawnPoint = spawn.transform;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Special collisions for player
-    /// </summary>
-    /// <param name="collision">the collision</param>
-    private void OnCollisionEnter(Collision collision) {
-        // During challenges, check for The Floor Is Lava
-        if (GameManager.PlayState == GameManager.GamePlayState.Challenge) {
-            if (collision.transform.CompareTag("ChallengeFailure")) {
-                ChallengesManager.FailCurrentChallenge();
+                if (spawn)
+                    RespawnPoint = spawn.transform;
             }
         }
     }
@@ -148,6 +137,13 @@ public class Player : MonoBehaviour {
     /// Resets the player and returns them to their respawn point
     /// </summary>
     public void Respawn() {
+        // Falling out of the world during a challenge fails it. Retry puts the player back at the start;
+        // leaving the challenge respawns them normally.
+        if (GameManager.PlayState == GameManager.GamePlayState.Challenge) {
+            if (playerState == PlayerState.Normal && !ChallengeMenu.IsOpen)
+                ChallengesManager.FailCurrentChallenge();
+            return;
+        }
         if (RespawnPoint && playerState == PlayerState.Normal) {
             playerState = PlayerState.Respawning;
             StartCoroutine(RespawnRoutine());
@@ -175,7 +171,8 @@ public class Player : MonoBehaviour {
         switch(actor.Type) {
             case Actor.ActorType.Prima:
                 Prima.PrimaInstance.gameObject.SetActive(true);
-                Kog.KogInstance.gameObject.SetActive(false);
+                if (Kog.KogInstance != null)
+                    Kog.KogInstance.gameObject.SetActive(false);
                 break;
             case Actor.ActorType.Kog:
                 Kog.KogInstance.gameObject.SetActive(true);

@@ -135,15 +135,21 @@ public class TargetArray {
      */
     public bool AddTarget(Magnetic newTarget, bool addingVacuous) {
         if (addingVacuous) {
-            //Debug.Log("Adding vacuous target, count was  " + Count + " and vc was " + VacuousCount);
-            // adding a vacuous target
-            //// All other targets must also be vacuous:
-            if (Count != VacuousCount) {
-                //Debug.LogError("TargetArray: adding a vacuous target when non-vacuous targets are already present (" + Count + " != " + VacuousCount + ")");
-                // This happens naturally when e.g. throwing coins
-                Clear();
+            // Vacuous targets live at the front of the array, in front of any marked targets.
+            // Marked targets are kept, so e.g. throwing a coin doesn't drop the target you're anchored to.
+            if (GetIndex(newTarget) >= 0)
+                return false; // already a target
+            if (Count >= Size && Count > 0) {
+                // Full: make room by removing the oldest target
+                RemoveTargetAt(0);
             }
+            for (int i = Count; i > VacuousCount; i--) {
+                targets[i] = targets[i - 1];
+            }
+            targets[VacuousCount] = newTarget;
             VacuousCount++;
+            Count++;
+            return true;
         } else {
             // we are adding a non-vacuous target
             // if there are any vacuous targets present, remove them first
@@ -262,8 +268,9 @@ public class TargetArray {
      * Removes all vacuous targets. Called when adding a non-vacuous target.
      */
     public void RemoveAllVacuousTargets() {
-        if (VacuousCount > 0) {
-            Clear();
+        // Vacuous targets are at the front of the array; marked targets after them are kept.
+        for (int i = VacuousCount - 1; i >= 0; i--) {
+            RemoveTargetAt(i);
         }
     }
     /// <summary>

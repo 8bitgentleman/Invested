@@ -60,6 +60,7 @@ public class Challenge : MonoBehaviour {
             for (int i = 0; i < failureObjects.Length; i++) {
                 if (failureObjects[i] == null) {
                     Debug.LogError("Error: Failure Object is null", gameObject);
+                    continue;
                 }
                 failureObjectTags[i] = failureObjects[i].tag;
                 failureObjects[i].tag = "ChallengeFailure";
@@ -80,16 +81,19 @@ public class Challenge : MonoBehaviour {
         spike.transform.position = startPosition.transform.position + new Vector3(0, 2.5f, 0);
         spike.transform.rotation = spikeStartRotation;
         GameManager.SetPlayState(GameManager.GamePlayState.Challenge);
-        // Move player to start and set camera rotation
-        Prima.PlayerPewter.Clear();
-        Player.PlayerInstance.transform.position = startPosition.position;
+        // Move player to start and set camera rotation. Also stops them and clears Push/Pull targets.
+        Player.CurrentActor.RespawnClear();
+        Player.CurrentActor.transform.position = startPosition.position;
         CameraController.Clear();
         CameraController.SetRotation(startPosition.eulerAngles);
 
         CameraController.DisableCinemachineCamera(vcam);
     }
     
-    public virtual void FailChallenge() { }
+    public virtual void FailChallenge() {
+        // Stop the timer and spike while the failure menu is open
+        StopAllCoroutines();
+    }
     protected virtual void CompleteChallenge() {
         Completed = true;
         CleanupChallenge();
@@ -115,7 +119,8 @@ public class Challenge : MonoBehaviour {
         // Reset failure tags
         if (failureObjects != null) {
             for (int i = 0; i < failureObjects.Length; i++) {
-                failureObjects[i].tag = failureObjectTags[i];
+                if (failureObjects[i] != null)
+                    failureObjects[i].tag = failureObjectTags[i];
             }
         }
     }

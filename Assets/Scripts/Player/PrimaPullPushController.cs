@@ -53,6 +53,8 @@ public class PrimaPullPushController : AllomanticIronSteel {
     public enum ControlMode { Manual, Area, Bubble, Coinshot };
 
     public ControlMode Mode { get; private set; }
+    // True after a click confirmed the Control Wheel, until that click is released
+    public bool IgnoringPullUntilReleased { get; private set; }
     public float BlueLinesBrightnessModifier { get; set; }
 
     private Magnetic removedTarget; // When a target was just removed, keep track of it so we don't immediately select it again
@@ -119,6 +121,12 @@ public class PrimaPullPushController : AllomanticIronSteel {
     /// Read inputs for marking targets.
     /// </summary>
     private void LateUpdate() {
+        // On mouse and keyboard, the click that confirms the Control Wheel is the same button as Pull.
+        // Ignore that click (until it's released) so it doesn't also Pull, mark, or throw a coin.
+        if (!SettingsMenu.settingsGameplay.UsingGamepad && Keybinds.PullDown() && HUD.ControlWheelController.IsOpenOrJustClosed)
+            IgnoringPullUntilReleased = true;
+        else if (IgnoringPullUntilReleased && !Keybinds.IronPulling())
+            IgnoringPullUntilReleased = false;
         if (!GameManager.MenusController.pauseMenu.IsOpen) {
             if (IsBurning) {
                 if (!ExternalControl && Player.CanControl) {
@@ -155,7 +163,7 @@ public class PrimaPullPushController : AllomanticIronSteel {
                     // Start burning (as long as the Control Wheel isn't open to misinterprent your mouse clicks, etc)
                     if (Keybinds.StopBurning()) {
                         StartBurning();
-                    } else if (!HUD.ControlWheelController.IsOpen) {
+                    } else if (!HUD.ControlWheelController.IsOpenOrJustClosed) {
                         if (Keybinds.SelectDown() || Keybinds.PullDown()) {
                             StartBurning(true);
                         } else if (Keybinds.SelectAlternateDown() || Keybinds.PushDown()) {
@@ -241,6 +249,10 @@ public class PrimaPullPushController : AllomanticIronSteel {
         bool keybindPushing = Keybinds.SteelPushing() || Keybinds.WithdrawCoin(); // for Pushing on coins after tossing them
         bool keybindPullingDown = Keybinds.PullDown();
         bool keybindPushingDown = Keybinds.PushDown();
+        if (IgnoringPullUntilReleased) { // see LateUpdate
+            keybindPulling = false;
+            keybindPullingDown = false;
+        }
 
         // Coinshot mode: 
         // If do not have pull-targets, pulling is also Pushing
@@ -319,9 +331,9 @@ public class PrimaPullPushController : AllomanticIronSteel {
                             }
                         }
                     } else {
-                        // If there is no bullseye target, deselect all targets.
+                        // If there is no bullseye target, do nothing. Missing shouldn't drop your targets.
+                        // (Deselect All is on the Control Wheel and Z.)
                         if (bullseyeTarget == null) {
-                            PullTargets.Clear();
                         } else if (PullTargets.IsTarget(bullseyeTarget)) {
                             // If the bullseye target is already selected, we want to remove it instead.
                             PullTargets.Clear();
@@ -381,9 +393,8 @@ public class PrimaPullPushController : AllomanticIronSteel {
                             }
                         }
                     } else {
-                        // If there is no bullseye target, deselect all targets.
+                        // If there is no bullseye target, do nothing. Missing shouldn't drop your targets.
                         if (bullseyeTarget == null) {
-                            PushTargets.Clear();
                         } else if (PushTargets.IsTarget(bullseyeTarget)) {
                             // If the bullseye target is already selected, we want to remove it instead.
                             PushTargets.Clear();

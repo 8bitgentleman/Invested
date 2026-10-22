@@ -76,17 +76,17 @@ public class PrimaFlywheelController : MonoBehaviour {
 
         // get the relative torques
 
-        float angleX = Time.deltaTime * speedFactor * Vector3.Dot(torque, Player.PlayerInstance.transform.right);
-        float angleY = Time.deltaTime * speedFactor * Vector3.Dot(torque, Player.PlayerInstance.transform.up);
-        float angleZ = Time.deltaTime * speedFactor * Vector3.Dot(torque, Player.PlayerInstance.transform.forward);
+        float angleX = Time.deltaTime * speedFactor * Vector3.Dot(torque, Prima.PrimaInstance.transform.right);
+        float angleY = Time.deltaTime * speedFactor * Vector3.Dot(torque, Prima.PrimaInstance.transform.up);
+        float angleZ = Time.deltaTime * speedFactor * Vector3.Dot(torque, Prima.PrimaInstance.transform.forward);
 
         //Debug.Log(angleX);
         //Debug.Log(angleY);
         //Debug.Log(angleZ);
-        //Debug.DrawRay(Player.PlayerInstance.transform.position + new Vector3(0, .5f, 0), Player.PlayerInstance.transform.right * angleX / torque.magnitude, Color.red);
-        //Debug.DrawRay(Player.PlayerInstance.transform.position + new Vector3(0, 1, 0), Player.PlayerInstance.transform.up * angleY / torque.magnitude, Color.green);
-        //Debug.DrawRay(Player.PlayerInstance.transform.position + new Vector3(0, 1.5f, 0), Player.PlayerInstance.transform.forward * angleZ / torque.magnitude, Color.blue);
-        //Debug.DrawRay(Player.PlayerInstance.transform.position, torque, Color.white);
+        //Debug.DrawRay(Prima.PrimaInstance.transform.position + new Vector3(0, .5f, 0), Prima.PrimaInstance.transform.right * angleX / torque.magnitude, Color.red);
+        //Debug.DrawRay(Prima.PrimaInstance.transform.position + new Vector3(0, 1, 0), Prima.PrimaInstance.transform.up * angleY / torque.magnitude, Color.green);
+        //Debug.DrawRay(Prima.PrimaInstance.transform.position + new Vector3(0, 1.5f, 0), Prima.PrimaInstance.transform.forward * angleZ / torque.magnitude, Color.blue);
+        //Debug.DrawRay(Prima.PrimaInstance.transform.position, torque, Color.white);
 
         // apply the proportional rotations
         // i.e. "apply a torque" to each wheel

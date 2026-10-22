@@ -20,7 +20,7 @@ public class KogAnimation : MonoBehaviour {
 
     void Start() {
         anim = GetComponentInChildren<Animator>();
-        target = Player.PlayerInstance.transform;
+        target = Prima.PrimaInstance.transform;
         //state = State.Resting;
 
         switch (state) {
@@ -37,7 +37,7 @@ public class KogAnimation : MonoBehaviour {
         switch (state) {
             case State.Reaching:
                 // Transition: If the Sphere is close to the hand
-                if ((Player.PlayerInstance.transform.position - hand.position).sqrMagnitude < zeroThresholdSqr) {
+                if ((Prima.PrimaInstance.transform.position - hand.position).sqrMagnitude < zeroThresholdSqr) {
                     state = State.Throwing;
                     anim.SetBool("Throwing", true);
                 }

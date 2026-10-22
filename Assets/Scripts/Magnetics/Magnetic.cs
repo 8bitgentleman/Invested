@@ -312,12 +312,7 @@ public class Magnetic : MonoBehaviour {
             }
             blueLine.LineColor = color;
         } else {
-            Debug.Log("Null: " + gameObject);
-            Debug.Log("equa: " + (gameObject == Player.PlayerInstance.gameObject));
-            Debug.Log("Null: " + name);
-            Debug.Log("Null: " + tag);
-            Debug.Log("Null: " + blueLine);
-            Debug.Log("Null: " + GameManager.MagneticsInScene.Contains(this));
+            Debug.LogWarning("Magnetic has no blue line: " + name, gameObject);
         }
     }
 

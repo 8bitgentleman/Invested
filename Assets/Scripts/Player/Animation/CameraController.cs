@@ -100,8 +100,11 @@ public class CameraController : MonoBehaviour {
             float deltaX;
             float deltaY;
             if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad) {
-                deltaX = Input.GetAxis("HorizontalRight") * SettingsMenu.settingsGameplay.gamepadSensitivityX;
-                deltaY = Input.GetAxis("VerticalRight") * SettingsMenu.settingsGameplay.gamepadSensitivityY;
+                // The stick gives a rate, not a distance, so scale by frame time (normalized to 60 fps,
+                // which keeps the existing sensitivity settings feeling the same as before at 60 fps).
+                float stickTimeScale = Time.unscaledDeltaTime * 60;
+                deltaX = Input.GetAxis("HorizontalRight") * SettingsMenu.settingsGameplay.gamepadSensitivityX * stickTimeScale;
+                deltaY = Input.GetAxis("VerticalRight") * SettingsMenu.settingsGameplay.gamepadSensitivityY * stickTimeScale;
             } else {
                 deltaX = Input.GetAxis("Mouse X") * SettingsMenu.settingsGameplay.mouseSensitivityX;
                 deltaY = Input.GetAxis("Mouse Y") * SettingsMenu.settingsGameplay.mouseSensitivityY;

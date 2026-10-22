@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Keybinds : MonoBehaviour {
 
     #region constants
-    private const float triggerDeadband = 0.01f;
+    private const float triggerDeadband = 0.1f; // high enough that a resting trigger doesn't count as pressed
     private const float dpadDeadband = 0.01f;
     private const float doubleTapThreshold = 0.25f;
     #endregion
@@ -17,11 +17,16 @@ public class Keybinds : MonoBehaviour {
     private static float timeToHoldDPadX = 0f;
     //private static float doubleTapTimeWheel = float.NegativeInfinity;
 
-    // Only used for convert Gamepad axes to binary buttons
+    // Only used for convert Gamepad axes to binary buttons.
+    // The "pressed this frame" edges are computed once per frame (see UpdateAxisEdges),
+    // so they don't depend on whether this script's updates run before or after the scripts reading them.
+    private static int axisEdgesFrame = -1;
     private static bool lastWasPulling = false;
     private static bool lastWasPushing = false;
     private static bool lastWasDPadRight = false;
-    private static bool lastWasDPadLeft = false;
+    private static bool pullDownThisFrame = false;
+    private static bool pushDownThisFrame = false;
+    private static bool dPadRightDownThisFrame = false;
 
     // These will eventually be accessability settings
     private static bool setting_toggle_ZincTime => SettingsMenu.settingsGameplay.UsingGamepad;
@@ -40,11 +45,23 @@ public class Keybinds : MonoBehaviour {
         SceneManager.sceneUnloaded += ClearBeforeSceneChange;
 
     }
-    private void LateUpdate() {
-        lastWasPulling = IronPulling();
-        lastWasPushing = SteelPushing();
-        lastWasDPadRight = Input.GetAxis("GamepadDPadX") > dpadDeadband;
-        lastWasDPadLeft = Input.GetAxis("GamepadDPadX") < -dpadDeadband;
+    private void Update() {
+        UpdateAxisEdges();
+    }
+    private static void UpdateAxisEdges() {
+        if (axisEdgesFrame == Time.frameCount)
+            return;
+        axisEdgesFrame = Time.frameCount;
+
+        bool pulling = Input.GetAxis("RightTrigger") > triggerDeadband;
+        bool pushing = Input.GetAxis("LeftTrigger") > triggerDeadband;
+        bool dPadRight = Input.GetAxis("GamepadDPadX") > dpadDeadband;
+        pullDownThisFrame = pulling && !lastWasPulling;
+        pushDownThisFrame = pushing && !lastWasPushing;
+        dPadRightDownThisFrame = dPadRight && !lastWasDPadRight;
+        lastWasPulling = pulling;
+        lastWasPushing = pushing;
+        lastWasDPadRight = dPadRight;
     }
     public void ClearBeforeSceneChange(Scene scene) {
         toggled_Zinctime = false;
@@ -52,23 +69,19 @@ public class Keybinds : MonoBehaviour {
 
     public static bool PullDown() {
         if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad) {
-            if (Input.GetAxis("RightTrigger") > triggerDeadband) {
-                return !lastWasPulling;
-            }
+            UpdateAxisEdges();
+            return pullDownThisFrame;
         } else {
             return Input.GetButtonDown("Mouse0");
         }
-        return false;
     }
     public static bool PushDown() {
         if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad) {
-            if (Input.GetAxis("LeftTrigger") > triggerDeadband) {
-                return !lastWasPushing;
-            }
+            UpdateAxisEdges();
+            return pushDownThisFrame;
         } else {
             return Input.GetButtonDown("Mouse1");
         }
-        return false;
     }
 
     public static bool IronPulling() => RightBurnPercentage() > triggerDeadband;
@@ -275,9 +288,13 @@ public class Keybinds : MonoBehaviour {
     }
     public static bool TossCoinDown() {
         if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad)
-            return !lastWasDPadRight && Input.GetAxis("GamepadDPadX") > dpadDeadband;
+            return DPadRightDown();
         else
             return false;
+    }
+    private static bool DPadRightDown() {
+        UpdateAxisEdges();
+        return dPadRightDownThisFrame;
     }
     public static bool TossCoinCondition() {
         if (SettingsMenu.settingsGameplay.controlScheme == JSONSettings_Gameplay.Gamepad)

@@ -9,6 +9,7 @@ public class PrimaMovementController : AllomanticPewter {
 
     #region constants
     public const float shortHopThreshold = .075f;
+    private const float jumpBufferTime = .15f; // a jump pressed this long before landing still counts
     public const float radius = .26f; // radius of the player sphere collider
     // Rolling
     public const float rollingAcceleration = 5f;
@@ -115,7 +116,7 @@ public class PrimaMovementController : AllomanticPewter {
     #endregion
 
     Vector3 lastInput = Vector3.zero; // The last horizontal/vertical movement command sent to the player
-    private bool jumpQueued;
+    private float lastJumpPressTime = float.NegativeInfinity;
     private bool lastWasSprintingOnGround, lastWasRollingOnGround;
     private float lastJumpTime;
     private bool invertGravity = false;
@@ -132,7 +133,7 @@ public class PrimaMovementController : AllomanticPewter {
     }
 
     public override void Clear() {
-        jumpQueued = false;
+        lastJumpPressTime = float.NegativeInfinity;
         lastJumpTime = -1;
         lastWasSprintingOnGround = false;
         lastWasRollingOnGround = false;
@@ -201,13 +202,14 @@ public class PrimaMovementController : AllomanticPewter {
                     }
                 }
                 // Check if jumping
-                if (IsGrounded && Keybinds.JumpDown()) {
-                    // Queue a jump for the next FixedUpdate
-                    // Actual jumping done in FixedUpdate to stay in sync with PrimaGroundedChecker
-                    jumpQueued = true;
+                // Remember when Jump was pressed, even in the air. FixedUpdate jumps if we're grounded
+                // within a short window, so a press just before landing isn't lost.
+                // (On gamepad, A also confirms the Control Wheel, so ignore it while the wheel is open.)
+                if (Keybinds.JumpDown() && !HUD.ControlWheelController.IsOpen) {
+                    lastJumpPressTime = Time.unscaledTime;
                 }
             } else {
-                jumpQueued = false;
+                lastJumpPressTime = float.NegativeInfinity;
                 IsSprinting = false;
                 IsAnchoring = false;
             }
@@ -289,9 +291,9 @@ public class PrimaMovementController : AllomanticPewter {
             }
 
             if (IsGrounded) {
-                // if a Jump is queued
-                if (jumpQueued) {
-                    jumpQueued = false;
+                // if Jump was pressed recently
+                if (Time.unscaledTime - lastJumpPressTime < jumpBufferTime) {
+                    lastJumpPressTime = float.NegativeInfinity;
                     lastJumpTime = Time.unscaledTime;
 
                     groundedChecker.UpdateStanding();

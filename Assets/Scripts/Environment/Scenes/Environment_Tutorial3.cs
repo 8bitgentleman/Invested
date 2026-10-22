@@ -19,7 +19,7 @@ public class Environment_Tutorial3 : EnvironmentCinematic {
         // Set camera target position to be same as where we left of in tutorial (just a sine function of time)
         vcam.transform.position = new Vector3(Mathf.Cos(Time.unscaledTime * Environment_TitleScreen.speedVert) * Environment_TitleScreen.speedAmp, (1 + Mathf.Sin(Time.unscaledTime * Environment_TitleScreen.speedVert)) * Environment_TitleScreen.speedAmp, Mathf.Sin(Time.unscaledTime * Environment_TitleScreen.speedVert) * Environment_TitleScreen.speedAmp);
         // Make camera look at Player
-        vcam.LookAt = Player.PlayerInstance.transform;
+        vcam.LookAt = Player.CurrentActor.transform;
 
         // Handle music
         StartCoroutine(Play_music());
@@ -36,7 +36,7 @@ public class Environment_Tutorial3 : EnvironmentCinematic {
 
     private IEnumerator Procedure() {
         // Skip the intro cutscene if the player is starting elsewhere in the level
-        if ((Player.PlayerInstance.transform.position - vcam.transform.position).magnitude < 30) {
+        if ((Player.CurrentActor.transform.position - vcam.transform.position).magnitude < 30) {
             yield return null;
             vcam.enabled = false;
             yield return new WaitForSeconds(2);

@@ -85,6 +85,7 @@ public class FlagsController : MonoBehaviour {
         FieldInfo field = instance.GetType().GetField(name);
         if (field == null) {
             Debug.LogError("SetFlag with invalid name: " + name);
+            return;
         }
         field.SetValue(instance, true);
 
@@ -105,11 +106,9 @@ public class FlagsController : MonoBehaviour {
                 HUD.ControlWheelController.RefreshLocked();
                 break;
             case "wheel_area":
-                Player.CanThrowCoins = true;
                 HUD.ControlWheelController.RefreshLocked();
                 break;
             case "wheel_bubble":
-                Player.CanThrowCoins = true;
                 HUD.ControlWheelController.RefreshLocked();
                 break;
         }
@@ -126,6 +125,7 @@ public class FlagsController : MonoBehaviour {
         FieldInfo field = instance.GetType().GetField(name);
         if (field == null) {
             Debug.LogError("GetData with invalid name: " + name);
+            return false;
         }
         return (bool)field.GetValue(instance);
     }

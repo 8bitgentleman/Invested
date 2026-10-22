@@ -52,7 +52,7 @@ public class Entity_TurretAnchored : NonPlayerPushPullController {
         rb.centerOfMass = transform.InverseTransformPoint(neckEnd.position);
         SteelReserve.IsEndless = false;
 
-        target = Player.PlayerInstance.transform;
+        target = Prima.PrimaInstance.transform;
         targetRb = Prima.PrimaInstance.ActorIronSteel.rb;
     }
 

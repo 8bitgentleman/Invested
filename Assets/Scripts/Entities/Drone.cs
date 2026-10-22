@@ -68,7 +68,7 @@ public class Drone : MonoBehaviour {
         pidHoriz = gameObject.AddComponent<PIDController_float>();
 
         if(Player.PlayerInstance != null) {
-            targetPosObject = Player.PlayerInstance.transform;
+            targetPosObject = Player.CurrentActor.transform;
         }
 
         SetTarget(targetPosObject.position);

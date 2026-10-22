@@ -1,0 +1,81 @@
+# Compile-checks the project and builds Windows/Linux players with GameCI.
+# Note: most models are .blend files, which Unity can only import with Blender installed.
+# The GameCI images don't include Blender, so these builds are missing most models.
+# Use them to catch compile errors; make playable builds locally (see BUILDING.md).
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      # Skip the Unity steps (instead of failing) until the license secrets are added
+      HAS_UNITY_LICENSE: ${{ secrets.UNITY_LICENSE != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneWindows64
+          - StandaloneLinux64
+    steps:
+      - name: Check for Unity license
+        if: env.HAS_UNITY_LICENSE != 'true'
+        run: echo "::notice::UNITY_LICENSE secret not set; skipping the build. See BUILDING.md."
+
+      # The Unity editor image + Library + build easily exceed the default free space.
+      - name: Free disk space
+        if: env.HAS_UNITY_LICENSE == 'true'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune --all --force
+          df -h /
+
+      # Shallow clone: full history is ~900 MB. The repo does not use Git LFS.
+      - name: Checkout
+        if: env.HAS_UNITY_LICENSE == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+
+      - name: Cache Library
+        if: env.HAS_UNITY_LICENSE == 'true'
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+
+      - name: Build with Unity
+        if: env.HAS_UNITY_LICENSE == 'true'
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 2020.1.2f1
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: Invested
+          buildsPath: build
+          allowDirtyBuild: true
+
+      - name: Upload build
+        if: env.HAS_UNITY_LICENSE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Invested-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+          retention-days: 14
